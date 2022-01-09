@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { UiService } from '../shared/ui.service';
 import { Exercise } from './exercise.model';
 
 @Injectable({
@@ -15,8 +17,13 @@ export class TrainingService {
   private runningExercise!: Exercise | null;
   fbSubs$: Subscription[] = [];
 
-  constructor(private db: AngularFirestore) {}
+  constructor(
+    private db: AngularFirestore,
+    private uiService: UiService,
+    private snackBar: MatSnackBar
+  ) {}
   fetchAvailableExercise() {
+    this.uiService.isLoadingState.next(true);
     this.fbSubs$.push(
       this.db
         .collection('availableExercise')
@@ -36,11 +43,18 @@ export class TrainingService {
         )
         .subscribe(
           (exercises: Exercise[]) => {
+            this.uiService.isLoadingState.next(false);
             this.availableExercise = exercises;
             this.exercisesChanged.next([...this.availableExercise]);
           },
-          (error) => {
-            console.log(error);
+          () => {
+            this.uiService.isLoadingState.next(false);
+            this.exerciseChanged.next(null);
+            this.uiService.showSnackbar(
+              'Fetching Exercises failed, pleased try again later',
+              '',
+              3000
+            );
           }
         )
     );
@@ -98,8 +112,12 @@ export class TrainingService {
           (exercises) => {
             this.finishedExercisesChanged.next(exercises as Exercise[]);
           },
-          (error) => {
-            console.log(error);
+          () => {
+            this.uiService.showSnackbar(
+              'Fetching Exercises failed, pleased try again later',
+              '',
+              3000
+            );
           }
         )
     );
