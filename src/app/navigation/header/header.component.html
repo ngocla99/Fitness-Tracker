@@ -10,7 +10,9 @@
       <li *ngIf="!(isAuth$ | async)"><a routerLink="/signup">Signup</a></li>
       <li *ngIf="!(isAuth$ | async)"><a routerLink="/login">Login</a></li>
       <li *ngIf="isAuth$ | async"><a routerLink="/training">Training</a></li>
-      <li *ngIf="isAuth$ | async" (click)="onLogout()"><a>Logout</a></li>
+      <li *ngIf="isAuth$ | async" (click)="onLogout()" style="cursor: pointer">
+        <a>Logout</a>
+      </li>
     </ul>
   </div>
 </mat-toolbar>
